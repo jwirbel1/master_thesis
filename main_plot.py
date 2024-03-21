@@ -10,11 +10,13 @@ import gzip
 
 uploadData=False
 verbose = False
-writeCSV = False
+writeCSV = True
 f = None
 
 # get the folder name from the command line
 folder = sys.argv[1]
+CLI = sys.argv[2]
+DATA = sys.argv[3]
 
 start_time = time.time()
 
@@ -25,7 +27,7 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 RadFunc = Radarfunctions(configFileName="config_long_range_2.cfg", 
-                          usbportCLI='COM11', usbportDATA='COM12', baudrateCLI=115200, baudrateData=921600,
+                          usbportCLI=CLI, usbportDATA=DATA, baudrateCLI=115200, baudrateData=921600,
                           bytezise=serial.EIGHTBITS,parity=serial.PARITY_NONE,timeout=1,
                           byteBufferLength=0,byteBuffer=np.zeros(2**15,dtype = 'uint8'))
 
@@ -56,6 +58,7 @@ while True:
     error = 0   
     try:
         writeTime = datetime.datetime.now().time()
+        # convert from utc to european winter time
         # set writeCSV to True only between 12:00 and 13:00, False otherwise
         if writeTime >= datetime.time(12, 0) and writeTime <= datetime.time(13, 0):
             writeCSV = True
@@ -124,4 +127,4 @@ while True:
         print("Sending sensorStop command")
         CLIport.close()
         Dataport.close()
-        break   
+        exit()   
